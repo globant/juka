@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.0" orientation="orthogonal" width="50" height="50" tilewidth="32" tileheight="32">
+ <tileset firstgid="1" name="tmw_desert_spacing" tilewidth="32" tileheight="32" spacing="1" margin="1">
+  <image source="tmw_desert_spacing.png" width="265" height="199"/>
+ </tileset>
+ <layer name="Capa de Patrones 1" width="50" height="50">
+  <data encoding="base64" compression="zlib">
+   eJztll0LgkAQRfepgqCigj4EoYKigvr//64NFLbB0VwX7+zuXDgPkcg93tRKY0wZITToPqF80D2UdPZwg+6SqwcXdK9cPTgvdI9QLugOym/QXXz7Uxd0p9z3oEF3Ug/1kEIqHk1e6A6KooSDC7pXKCd0l1z3UA/5xOiR8h4x8u8ebwFdfdzavt9a1p6MvU/bMXMB19pnD/qbisFjyB5X8vkmwMXH42A5VhQCNumC8zhZzhUX8A51YvYYusfd8qh4CtqDe/dxHvS+pvf92A6m41jpz91UPFyXvh4Ty9RhBt6hTtt/pE3DORaWpcNKiEffc8To8UrEg2PnsBfg8M0HOSoQjA==
+  </data>
+ </layer>
+ <objectgroup name="Objects" width="50" height="50">
+  <object name="player" x="618" y="1188" width="33" height="32"/>
+ </objectgroup>
+</map>
