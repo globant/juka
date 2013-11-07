@@ -1,4 +1,12 @@
-var CreditsScene = cc.Scene.extend({
+
+
+var CreditsScene = cc.Scene.extend(     
+    /* @description Hola */
+    /** @lends CreditsLayer.prototype */
+    {
+        /** @class CreditsScene */
+        /** @namespace game/scenes*/
+        /** Executed when entering the scene */
         onEnter:function(){
             this._super();
             var layer = new CreditsLayer();
@@ -8,8 +16,12 @@ var CreditsScene = cc.Scene.extend({
     }
 );
 
-var CreditsLayer = cc.Layer.extend({
-   
+var CreditsLayer = cc.Layer.extend(
+    /** @lends CreditsLayer.prototype */
+    {
+    /** @class CreditsLayer */
+    /** @namespace game/scenes */
+    /** Initalices scene */
     init:function () {
         this._super();
         

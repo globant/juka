@@ -6,6 +6,7 @@ var WellcomeScene = cc.Scene.extend({
         var layer = new WellcomeLayer();
         layer.init();
         this.addChild(layer);
+
     }
     
 });
@@ -23,10 +24,21 @@ var WellcomeLayer = cc.Layer.extend({
         var creditsItem = cc.MenuItemLabel.create(cc.LabelTTF.create("Credits","Arial", 30), function(){
             cc.Director.getInstance().replaceScene(cc.TransitionRotoZoom.create(3,new CreditsScene()));
         });
-        var menu = cc.Menu.create(playItem, helpItem, creditsItem);
+        var box2DItem = cc.MenuItemLabel.create(cc.LabelTTF.create("Box 2D","Arial", 30), function(){
+            cc.Director.getInstance().replaceScene(cc.TransitionRotoZoom.create(3,new Box2DScene()));
+        });
+
+        var menu = cc.Menu.create(playItem, helpItem, creditsItem, box2DItem);
         menu.alignItemsVertically();
    
-        this.addChild(menu);      
+        this.addChild(menu);     
+    },
+    onEnter:function(){
+        this._super();
+        this.scheduleUpdate();
+    },
+    update:function(){
+        this._super();
+        console.log("HOLA");
     }
-        
 });  

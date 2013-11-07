@@ -8,8 +8,7 @@ var InstructionsScene = cc.Scene.extend({
     }
 );
 
-var InstructionsLayer = cc.Layer.extend({
-   
+var InstructionsLayer = cc.Layer.extend({ 
     init:function () {
         this._super();
         
