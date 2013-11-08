@@ -19,6 +19,11 @@ var GameLayer = cc.Layer.extend({
         var tileMap = new TileMeadow();
         var objectGroup = tileMap.getObjectGroup("Objects");
         var spawnPoint = objectGroup.objectNamed("player");
+
+        // var mainThinks = tileMap.getObjectGroup("MainThinks");
+        // mainThinks.setVertexZ(10);
+        // var baseMap = tileMap.getObjectGroup("Base");
+        // baseMap.setVertexZ(20);
       
         /*
         var sprite = cc.Sprite.create("resources/images/Player.png");
@@ -31,10 +36,13 @@ var GameLayer = cc.Layer.extend({
         this._playerSprite.setPosition(spawnPoint.x, spawnPoint.y);
         this._playerSprite.scheduleUpdate();
         this._playerSprite.schedule(this.update);
+        // this._playerSprite.setVertexZ(1000);
         
         tileMap.addChild( this._playerSprite);
         
         this.addChild(tileMap);
+        // this.addChild(mainThinks);
+        // this.addChild(baseMap);
         this.setViewPointCenter( this._playerSprite.getPosition());
         
         return true;
