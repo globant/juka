@@ -1,5 +1,5 @@
 <!DOCTYPE HTML>
-
+<!-- http://blog.sethladd.com/2011/09/box2d-and-joints-for-javascript.html -->
 <html>
 <head>
     <meta charset="utf-8">
@@ -22,10 +22,23 @@
         ,b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
         ,b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
         ,b2DebugDraw = Box2D.Dynamics.b2DebugDraw
+        ,b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef
         ;
 
-        // This is a hack to compare the types of circle objects
-        var circle = new b2CircleShape(1);
+
+        var MAX_STEER_ANGLE = Math.PI/3;
+        var STEER_SPEED = 1.5;
+        var SIDEWAYS_FRICTION_FORCE = 10;
+        var HORSEPOWERS = 40
+        var CAR_STARTING_POS = new b2Vec2(10,10);
+ 
+        var leftRearWheelPosition = new b2Vec2(-1.5,1.90);
+        var rightRearWheelPosition = new b2Vec2(1.5,1.9);
+        var leftFrontWheelPosition = new b2Vec2(-1.5,-1.9);
+        var rightFrontWheelPosition = new b2Vec2(1.5,-1.9);
+
+        var engineSpeed =0;
+        var steeringAngle = 0
 
         function init()
         {
@@ -37,14 +50,89 @@
 
          debugDraw = true;
 
-            // Define the world
-            world = new b2World(
-                       new b2Vec2(0, 10)    //gravity of 10 in downward y direction
+          // Define the world
+          world = new b2World(
+                       new b2Vec2(0, 0)    //gravity of 10 in downward y direction
                     ,  true                 //allows objects to sleep if they are in equilibrium, indicated by change of color from Red to Grey in debugDraw mode
                  );
 
           // Scale is required to convert our pixel space into meters. A scale of 10 means 10px = 1m
           var scale = 20.0;
+
+
+          // define our body
+          var bodyDef = new b2BodyDef();
+          bodyDef.linearDamping = 1;
+          bodyDef.angularDamping = 1;
+          bodyDef.position = CAR_STARTING_POS.Copy()  
+
+       
+          var leftWheelDef = new b2BodyDef();
+          leftWheelDef.position = CAR_STARTING_POS.Copy();
+          leftWheelDef.position.Add(leftFrontWheelPosition);
+       
+
+          var rightWheelDef = new b2BodyDef();
+          rightWheelDef.position = CAR_STARTING_POS.Copy();
+          rightWheelDef.position.Add(rightFrontWheelPosition);
+       
+          var leftRearWheelDef = new b2BodyDef();
+          leftRearWheelDef.position = CAR_STARTING_POS.Copy();
+          leftRearWheelDef.position.Add(leftRearWheelPosition);
+       
+          var rightRearWheelDef = new b2BodyDef();
+          rightRearWheelDef.position = CAR_STARTING_POS.Copy();
+          rightRearWheelDef.position.Add(rightRearWheelPosition);
+          var rightRearWheel = world.CreateBody(rightRearWheelDef);
+  
+          // Body shape  
+          var fixDef2 = new b2FixtureDef;
+          fixDef2.density = 1;
+          fixDef2.shape = new b2PolygonShape;
+          fixDef2.shape.SetAsBox(1.5, 2.5);
+          bodyDef.type = b2Body.b2_dynamicBody;
+
+          var body = world.CreateBody(bodyDef).CreateFixture(fixDef2);
+          
+
+          //Right Wheel shape
+          
+          fixDef2.shape = new b2PolygonShape;
+          fixDef2.shape.SetAsBox(0.2,0.5);
+          fixDef2.density = 1;
+          rightWheelDef.type = b2Body.b2_dynamicBody;
+          var rightWheel = world.CreateBody(rightWheelDef).CreateFixture(fixDef2);
+
+
+          //Left Wheel shape
+          fixDef2.shape =  new b2PolygonShape;
+          fixDef2.shape.SetAsBox(0.2,0.5);
+          fixDef2.density = 1;
+          leftWheelDef.type = b2Body.b2_dynamicBody;
+          var leftWheel = world.CreateBody(leftWheelDef).CreateFixture(fixDef2);
+
+          
+          //Right Wheel shape
+          fixDef2.shape = new b2PolygonShape;
+          fixDef2.shape.SetAsBox(0.2,0.5);
+          fixDef2.density = 1;
+          leftRearWheelDef.type = b2Body.b2_dynamicBody;
+          var leftRearWheel = world.CreateBody(leftRearWheelDef).CreateFixture(fixDef2);
+          
+          //Right Wheel shape
+          fixDef2.shape = new b2PolygonShape;
+          fixDef2.shape.SetAsBox(0.2,0.5);
+          fixDef2.density = 1;
+          rightRearWheelDef.type = b2Body.b2_dynamicBody;
+
+          var rightRearWheel = world.CreateBody(rightRearWheelDef).CreateFixture(fixDef2);
+          
+          
+          var leftJointDef = new b2RevoluteJointDef();
+          leftJointDef.Initialize(body, leftWheel, leftWheel.GetBody().GetWorldCenter());
+          leftJointDef.enableMotor = true;
+          leftJointDef.maxMotorTorque = 100;
+          
 
              // Define the Ground
              // Basic properties of ground
@@ -85,7 +173,7 @@
          // Adding objects to our simulation space.
          // The difference here being, that these are dynamic objects and are affected by forces and impulses
          bodyDef.type = b2Body.b2_dynamicBody;
-
+         /* 
          for(var i = 0; i < 10; ++i)
          {
           if(Math.random() < 0.5) {
@@ -103,6 +191,7 @@
           bodyDef.position.y = Math.random() * screenH/scale/4; // put object randomly in top quarter of screen at start of simulation
           world.CreateBody(bodyDef).CreateFixture(fixDef);
          }
+         */
 
           // A callback for animation. It is widely suggested to use requestAnimFrame instead of setTimeout or setInterval for better animation performance.
          window.requestAnimFrame = (function(){
