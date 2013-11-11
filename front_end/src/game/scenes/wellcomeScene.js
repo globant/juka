@@ -39,6 +39,5 @@ var WellcomeLayer = cc.Layer.extend({
     },
     update:function(){
         this._super();
-        console.log("HOLA");
     }
 });  

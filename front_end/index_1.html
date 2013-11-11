@@ -1,16 +1,218 @@
 <!DOCTYPE HTML>
+
 <html>
 <head>
     <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=9">
     <title>Cocos2D-JS Simple Game Demo | raywenderlich.com</title>
+    <script src="box2d.js"></script>
+
+    <script>
+    
+        var canvas, context, screenW, screenH, world, drawDebug;
+
+        // bunch of variables required for various box2d objects
+        var b2Vec2 = Box2D.Common.Math.b2Vec2
+        ,b2AABB = Box2D.Collision.b2AABB
+        ,b2BodyDef = Box2D.Dynamics.b2BodyDef
+        ,b2Body = Box2D.Dynamics.b2Body
+        ,b2FixtureDef = Box2D.Dynamics.b2FixtureDef
+        ,b2Fixture = Box2D.Dynamics.b2Fixture
+        ,b2World = Box2D.Dynamics.b2World
+        ,b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+        ,b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
+        ,b2DebugDraw = Box2D.Dynamics.b2DebugDraw
+        ;
+
+        // This is a hack to compare the types of circle objects
+        var circle = new b2CircleShape(1);
+
+        function init()
+        {
+         // Defining and initializing our canvas elements
+         window.onkeydown = keydown;
+         canvas = document.getElementById("canvas");
+         context = canvas.getContext("2d");
+         screenW = canvas.width, screenH = canvas.height;
+
+         debugDraw = true;
+
+            // Define the world
+            world = new b2World(
+                       new b2Vec2(0, 10)    //gravity of 10 in downward y direction
+                    ,  true                 //allows objects to sleep if they are in equilibrium, indicated by change of color from Red to Grey in debugDraw mode
+                 );
+
+          // Scale is required to convert our pixel space into meters. A scale of 10 means 10px = 1m
+          var scale = 20.0;
+
+             // Define the Ground
+             // Basic properties of ground
+             var fixDef = new b2FixtureDef;
+             fixDef.density = 2.0;
+             fixDef.friction = 0.9;
+             fixDef.restitution = 0.8;
+
+             // Ground is nothing but just a static rectangular body with its center at screenW/2 and screenH
+             var bodyDef = new b2BodyDef;
+             bodyDef.type = b2Body.b2_staticBody;
+             bodyDef.position.x = screenW/2/scale;
+             // We use screenH for y coordinate as the ground has to be at the bottom of our screen
+             bodyDef.position.y = screenH/scale;
+
+             // here we define ground as a rectangular box of width = screenW and height = 10 (just some small number to make a thin strip)
+             fixDef.shape = new b2PolygonShape;
+             fixDef.shape.SetAsBox(screenW/scale, 10/scale);
+
+             // And finally add our ground object to our world
+             world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+             // Left Edge - Similar to ground, we define the left edge of our simulation... your application may or may not need this
+             // The edge is positioned at the left most i.e. x = 0 and y = screenH/2 as the center. width is 1 and height = screenH
+             bodyDef.position.x = 0;
+             bodyDef.position.y = screenH/2/scale;
+             fixDef.shape = new b2PolygonShape;
+             fixDef.shape.SetAsBox(1/scale, screenH/scale);
+             world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+          // Right Edge - same as left edge, positioned on the rightmost end of our canvas.
+             bodyDef.position.x = screenW/scale;
+             bodyDef.position.y = screenH/2/scale;
+          fixDef.shape = new b2PolygonShape;
+             fixDef.shape.SetAsBox(1/scale, screenH/scale);
+             world.CreateBody(bodyDef).CreateFixture(fixDef);
+
+         // Adding objects to our simulation space.
+         // The difference here being, that these are dynamic objects and are affected by forces and impulses
+         bodyDef.type = b2Body.b2_dynamicBody;
+
+         for(var i = 0; i < 10; ++i)
+         {
+          if(Math.random() < 0.5) {
+           fixDef.shape = new b2PolygonShape;
+           fixDef.shape.SetAsBox(
+              Math.random() + 0.5 //half width
+              ,  Math.random() + 0.5 //half height
+           );
+          } else {
+           fixDef.shape = new b2CircleShape(
+            Math.random() + 0.5 //radius
+           );
+          }
+          bodyDef.position.x = Math.random() * screenW/scale; // put the object randomly at any position within world boundaries
+          bodyDef.position.y = Math.random() * screenH/scale/4; // put object randomly in top quarter of screen at start of simulation
+          world.CreateBody(bodyDef).CreateFixture(fixDef);
+         }
+
+          // A callback for animation. It is widely suggested to use requestAnimFrame instead of setTimeout or setInterval for better animation performance.
+         window.requestAnimFrame = (function(){
+           return  window.requestAnimationFrame       ||
+             window.webkitRequestAnimationFrame ||
+             window.mozRequestAnimationFrame    ||
+             window.oRequestAnimationFrame      ||
+             window.msRequestAnimationFrame     ||
+             function(/* function */ callback, /* DOMElement */ element){
+            window.setTimeout(callback, 1000 / 60);
+             };
+         })();
+
+         // Our update function
+         function update() {
+         world.Step(1 / 60, 3, 3); // timestep, velocityIterations, positionIterations. Read manual for more details
+
+         if(drawDebug)
+         {
+          // A small sample of how to apply HTML5 features on the object.
+          // When you press "d", this loop condition gets true
+          // The circles are colored while rectangles show as they are
+
+          // Clears the canvas context
+          context.clearRect(0,0,screenW, screenH);
+
+          // To keep showing the rectangles. It also draws the circle, but they are overwritten by the next function
+          world.DrawDebugData();
+          // Detects Circles & Apply colors to them
+          drawCanvasObjects();
+         }
+         else
+          // draw in the basic debug mode provided by box2d. It is very useful to see the object interactions
+          world.DrawDebugData();
+
+         // This is called after we are done with time steps to clear the forces
+         world.ClearForces();
+
+         // callback for next update
+         requestAnimFrame(update);
+         };
+
+                 // Starts our update / loop
+                 requestAnimFrame(update);
+
+                 // The native function that draws the object for us to debug their physics and visualize interaction
+          var debugDraw = new b2DebugDraw();
+          debugDraw.SetSprite(context);
+          debugDraw.SetDrawScale(scale);
+          debugDraw.SetFillAlpha(0.5);
+          debugDraw.SetLineThickness(1.0);
+          debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
+
+         world.SetDebugDraw(debugDraw);
+
+         // Function to detect circles and color them Red
+         function drawCanvasObjects()
+         {
+          var node = world.GetBodyList(); // returns list of all bodies attached to this world
+          while(node)
+          {
+           var curr = node;
+           node = node.GetNext();
+
+           // Check if the identified body is of type dynamic. Remember we defined our circles as dynamic body types
+           if(curr.GetType() == b2Body.b2_dynamicBody)
+           {
+            // Get the shape from the list of retrieved fixtures defined during initialization for each body
+            var shape = curr.GetFixtureList().GetShape();
+
+            if(shape.GetType() == circle.GetType())
+            {   // If shape is circle
+             var position = curr.GetPosition(); // Get the body's position in the world
+
+             // We need to scale back the position coordinates to map them back to canvas coordinates
+             var canvasY = position.y*scale;
+             var canvasX = position.x*scale;
+
+             // boundary color = white
+             context.strokeStyle = "#000000";
+             // fill color = red
+             context.fillStyle = "#FF0000";
+             context.beginPath();
+             context.arc(canvasX,canvasY,shape.GetRadius()*scale,0,Math.PI*2,true);
+             context.closePath();
+             context.stroke();
+             context.fill();
+            }
+           }
+          }
+         }
+        }
+
+        function keydown(e)
+        {
+         if (e.keyCode == 68) //press 'd'
+         {
+          drawDebug = !drawDebug;
+         }
+        }
+        window.addEventListener("load", init, true);        // insert the listener for onload event to call our init function    
+    </script>
 </head>
 <body style="text-align: center;background: #f2f6f8;">
 <img style="clear:both;margin-bottom: 20px" src="logo.png"/>
 
 <div></div>
 <div style="display:inline-block;width:auto; margin: 0 auto; background: black; position:relative; border:5px solid black; border-radius: 10px; box-shadow: 0 5px 50px #333">
-    <canvas id="gameCanvas" width="800" height="450"></canvas>
+    <canvas id="canvas" width="800" height="450"></canvas>
 </div>
-<script src="cocos2d.js"></script>
+
 </body>
 </html>
