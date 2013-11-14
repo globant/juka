@@ -1,5 +1,10 @@
 <!DOCTYPE HTML>
 <!-- http://blog.sethladd.com/2011/09/box2d-and-joints-for-javascript.html -->
+<!--https://code.google.com/p/box2dweb/wiki/BasicUsage -->
+<!-- http://forums.coronalabs.com/topic/39621-car-physics-help-required-to-translate-some-box2d-code/ -->
+<!-- http://gmc.yoyogames.com/index.php?showtopic=583582 -->
+<!-- http://box2d.org/manual.pdf -->
+
 <html>
 <head>
     <meta charset="utf-8">
@@ -11,6 +16,8 @@
     
         var canvas, context, screenW, screenH, world, drawDebug;
 
+
+        
         // bunch of variables required for various box2d objects
         var b2Vec2 = Box2D.Common.Math.b2Vec2
         ,b2AABB = Box2D.Collision.b2AABB
@@ -23,8 +30,10 @@
         ,b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
         ,b2DebugDraw = Box2D.Dynamics.b2DebugDraw
         ,b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef
+        ,b2RevoluteJoint =  Box2D.Dynamics.Joints.b2RevoluteJoint
+        ,b2PrismaticJointDef = Box2D.Dynamics.Joints.b2PrismaticJointDef
+        ,b2Math = Box2D.Common.Math.b2Math
         ;
-
 
         var MAX_STEER_ANGLE = Math.PI/3;
         var STEER_SPEED = 1.5;
@@ -48,8 +57,6 @@
          context = canvas.getContext("2d");
          screenW = canvas.width, screenH = canvas.height;
 
-         debugDraw = true;
-
           // Define the world
           world = new b2World(
                        new b2Vec2(0, 0)    //gravity of 10 in downward y direction
@@ -59,185 +66,113 @@
           // Scale is required to convert our pixel space into meters. A scale of 10 means 10px = 1m
           var scale = 20.0;
 
+          var fixDef = new b2FixtureDef;
 
           // define our body
           var bodyDef = new b2BodyDef();
           bodyDef.linearDamping = 1;
           bodyDef.angularDamping = 1;
           bodyDef.position = CAR_STARTING_POS.Copy()  
+          fixDef.density = 1;
+          fixDef.shape = new b2PolygonShape;
+          fixDef.shape.SetAsBox(1.5, 2.5);
+          bodyDef.type = b2Body.b2_dynamicBody;
+          var body = world.CreateBody(bodyDef);
+          body.CreateFixture(fixDef);
 
-       
           var leftWheelDef = new b2BodyDef();
           leftWheelDef.position = CAR_STARTING_POS.Copy();
           leftWheelDef.position.Add(leftFrontWheelPosition);
-       
+          fixDef.shape =  new b2PolygonShape;
+          fixDef.shape.SetAsBox(0.2,0.5);
+          fixDef.density = 1;
+          leftWheelDef.type = b2Body.b2_dynamicBody;
+          var leftWheel = world.CreateBody(leftWheelDef);
+          leftWheel.CreateFixture(fixDef);       
 
           var rightWheelDef = new b2BodyDef();
           rightWheelDef.position = CAR_STARTING_POS.Copy();
           rightWheelDef.position.Add(rightFrontWheelPosition);
-       
+          fixDef.shape = new b2PolygonShape;
+          fixDef.shape.SetAsBox(0.2,0.5);
+          fixDef.density = 1;
+          rightWheelDef.type = b2Body.b2_dynamicBody;
+          var rightWheel = world.CreateBody(rightWheelDef);
+          rightWheel.CreateFixture(fixDef);
+
           var leftRearWheelDef = new b2BodyDef();
           leftRearWheelDef.position = CAR_STARTING_POS.Copy();
           leftRearWheelDef.position.Add(leftRearWheelPosition);
+          fixDef.shape = new b2PolygonShape;
+          fixDef.shape.SetAsBox(0.2,0.5);
+          fixDef.density = 1;
+          leftRearWheelDef.type = b2Body.b2_dynamicBody;
+          var leftRearWheel = world.CreateBody(leftRearWheelDef);
+          leftRearWheel.CreateFixture(fixDef);
        
           var rightRearWheelDef = new b2BodyDef();
           rightRearWheelDef.position = CAR_STARTING_POS.Copy();
           rightRearWheelDef.position.Add(rightRearWheelPosition);
-          var rightRearWheel = world.CreateBody(rightRearWheelDef);
-  
-          // Body shape  
-          var fixDef2 = new b2FixtureDef;
-          fixDef2.density = 1;
-          fixDef2.shape = new b2PolygonShape;
-          fixDef2.shape.SetAsBox(1.5, 2.5);
-          bodyDef.type = b2Body.b2_dynamicBody;
-
-          var body = world.CreateBody(bodyDef).CreateFixture(fixDef2);
-          
-
-          //Right Wheel shape
-          
-          fixDef2.shape = new b2PolygonShape;
-          fixDef2.shape.SetAsBox(0.2,0.5);
-          fixDef2.density = 1;
-          rightWheelDef.type = b2Body.b2_dynamicBody;
-          var rightWheel = world.CreateBody(rightWheelDef).CreateFixture(fixDef2);
-
-
-          //Left Wheel shape
-          fixDef2.shape =  new b2PolygonShape;
-          fixDef2.shape.SetAsBox(0.2,0.5);
-          fixDef2.density = 1;
-          leftWheelDef.type = b2Body.b2_dynamicBody;
-          var leftWheel = world.CreateBody(leftWheelDef).CreateFixture(fixDef2);
-
-          
-          //Right Wheel shape
-          fixDef2.shape = new b2PolygonShape;
-          fixDef2.shape.SetAsBox(0.2,0.5);
-          fixDef2.density = 1;
-          leftRearWheelDef.type = b2Body.b2_dynamicBody;
-          var leftRearWheel = world.CreateBody(leftRearWheelDef).CreateFixture(fixDef2);
-          
-          //Right Wheel shape
-          fixDef2.shape = new b2PolygonShape;
-          fixDef2.shape.SetAsBox(0.2,0.5);
-          fixDef2.density = 1;
+          fixDef.shape = new b2PolygonShape;
+          fixDef.shape.SetAsBox(0.2,0.5);
+          fixDef.density = 1;
           rightRearWheelDef.type = b2Body.b2_dynamicBody;
-
-          var rightRearWheel = world.CreateBody(rightRearWheelDef).CreateFixture(fixDef2);
+          var rightRearWheel = world.CreateBody(rightRearWheelDef);
+          rightRearWheel.CreateFixture(fixDef);
           
           
           var leftJointDef = new b2RevoluteJointDef();
-          leftJointDef.Initialize(body, leftWheel, leftWheel.GetBody().GetWorldCenter());
+          leftJointDef.Initialize(body, leftWheel, leftWheel.GetWorldCenter());
           leftJointDef.enableMotor = true;
           leftJointDef.maxMotorTorque = 100;
+          var leftJoint = world.CreateJoint(leftJointDef);
           
 
-             // Define the Ground
-             // Basic properties of ground
-             var fixDef = new b2FixtureDef;
-             fixDef.density = 2.0;
-             fixDef.friction = 0.9;
-             fixDef.restitution = 0.8;
+          var rightJointDef = new b2RevoluteJointDef();
+          rightJointDef.Initialize(body, rightWheel, rightWheel.GetWorldCenter());
+          rightJointDef.enableMotor = true;
+          rightJointDef.maxMotorTorque = 100;
+          var rightJoint = world.CreateJoint(rightJointDef);
+            
+          var leftRearJointDef = new b2PrismaticJointDef();
+          leftRearJointDef.Initialize(body, leftRearWheel, leftRearWheel.GetWorldCenter(), new b2Vec2(1,0));
+          leftRearJointDef.enableLimit = true;
+          leftRearJointDef.lowerTranslation = leftRearJointDef.upperTranslation = 0;
+          var leftRearJoint = world.CreateJoint(leftRearJointDef);
+ 
+          var rightRearJointDef = new b2PrismaticJointDef();
+          rightRearJointDef.Initialize(body, rightRearWheel, rightRearWheel.GetWorldCenter(), new b2Vec2(1,0));
+          rightRearJointDef.enableLimit = true;
+          rightRearJointDef.lowerTranslation = rightRearJointDef.upperTranslation = 0;
+          var rightRearJoint = world.CreateJoint(rightRearJointDef);
 
-             // Ground is nothing but just a static rectangular body with its center at screenW/2 and screenH
-             var bodyDef = new b2BodyDef;
-             bodyDef.type = b2Body.b2_staticBody;
-             bodyDef.position.x = screenW/2/scale;
-             // We use screenH for y coordinate as the ground has to be at the bottom of our screen
-             bodyDef.position.y = screenH/scale;
-
-             // here we define ground as a rectangular box of width = screenW and height = 10 (just some small number to make a thin strip)
-             fixDef.shape = new b2PolygonShape;
-             fixDef.shape.SetAsBox(screenW/scale, 10/scale);
-
-             // And finally add our ground object to our world
-             world.CreateBody(bodyDef).CreateFixture(fixDef);
-
-             // Left Edge - Similar to ground, we define the left edge of our simulation... your application may or may not need this
-             // The edge is positioned at the left most i.e. x = 0 and y = screenH/2 as the center. width is 1 and height = screenH
-             bodyDef.position.x = 0;
-             bodyDef.position.y = screenH/2/scale;
-             fixDef.shape = new b2PolygonShape;
-             fixDef.shape.SetAsBox(1/scale, screenH/scale);
-             world.CreateBody(bodyDef).CreateFixture(fixDef);
-
-          // Right Edge - same as left edge, positioned on the rightmost end of our canvas.
-             bodyDef.position.x = screenW/scale;
-             bodyDef.position.y = screenH/2/scale;
-          fixDef.shape = new b2PolygonShape;
-             fixDef.shape.SetAsBox(1/scale, screenH/scale);
-             world.CreateBody(bodyDef).CreateFixture(fixDef);
-
-         // Adding objects to our simulation space.
-         // The difference here being, that these are dynamic objects and are affected by forces and impulses
-         bodyDef.type = b2Body.b2_dynamicBody;
-         /* 
-         for(var i = 0; i < 10; ++i)
-         {
-          if(Math.random() < 0.5) {
-           fixDef.shape = new b2PolygonShape;
-           fixDef.shape.SetAsBox(
-              Math.random() + 0.5 //half width
-              ,  Math.random() + 0.5 //half height
-           );
-          } else {
-           fixDef.shape = new b2CircleShape(
-            Math.random() + 0.5 //radius
-           );
-          }
-          bodyDef.position.x = Math.random() * screenW/scale; // put the object randomly at any position within world boundaries
-          bodyDef.position.y = Math.random() * screenH/scale/4; // put object randomly in top quarter of screen at start of simulation
-          world.CreateBody(bodyDef).CreateFixture(fixDef);
-         }
-         */
 
           // A callback for animation. It is widely suggested to use requestAnimFrame instead of setTimeout or setInterval for better animation performance.
-         window.requestAnimFrame = (function(){
-           return  window.requestAnimationFrame       ||
+          window.requestAnimFrame = (function(){
+             return  window.requestAnimationFrame       ||
              window.webkitRequestAnimationFrame ||
              window.mozRequestAnimationFrame    ||
              window.oRequestAnimationFrame      ||
              window.msRequestAnimationFrame     ||
              function(/* function */ callback, /* DOMElement */ element){
-            window.setTimeout(callback, 1000 / 60);
+              window.setTimeout(callback, 1000 / 60);
              };
          })();
 
-         // Our update function
-         function update() {
-         world.Step(1 / 60, 3, 3); // timestep, velocityIterations, positionIterations. Read manual for more details
+         function keydown(e){
+            if (e.keyCode == 37) {
+              steeringAngle = -MAX_STEER_ANGLE
+            }else if (e.keyCode == 39){ 
+              steeringAngle = MAX_STEER_ANGLE
+            }else if (e.keyCode == 38){ // presss 'up'
+              engineSpeed = -HORSEPOWERS;
+            }else if (e.keyCode == 40){ // press 'down' 
+              engineSpeed = HORSEPOWERS;
+            }
+          }
 
-         if(drawDebug)
-         {
-          // A small sample of how to apply HTML5 features on the object.
-          // When you press "d", this loop condition gets true
-          // The circles are colored while rectangles show as they are
+          requestAnimFrame(update);
 
-          // Clears the canvas context
-          context.clearRect(0,0,screenW, screenH);
-
-          // To keep showing the rectangles. It also draws the circle, but they are overwritten by the next function
-          world.DrawDebugData();
-          // Detects Circles & Apply colors to them
-          drawCanvasObjects();
-         }
-         else
-          // draw in the basic debug mode provided by box2d. It is very useful to see the object interactions
-          world.DrawDebugData();
-
-         // This is called after we are done with time steps to clear the forces
-         world.ClearForces();
-
-         // callback for next update
-         requestAnimFrame(update);
-         };
-
-                 // Starts our update / loop
-                 requestAnimFrame(update);
-
-                 // The native function that draws the object for us to debug their physics and visualize interaction
           var debugDraw = new b2DebugDraw();
           debugDraw.SetSprite(context);
           debugDraw.SetDrawScale(scale);
@@ -245,7 +180,56 @@
           debugDraw.SetLineThickness(1.0);
           debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
 
-         world.SetDebugDraw(debugDraw);
+          world.SetDebugDraw(debugDraw);
+
+        
+          function update() {
+            world.Step(1 / 60, 3, 3); 
+            world.DrawDebugData();
+            
+            
+            killOrthogonalVelocity(leftWheel);
+            killOrthogonalVelocity(rightWheel);
+            killOrthogonalVelocity(leftRearWheel);
+            killOrthogonalVelocity(rightRearWheel);
+            
+            world.ClearForces();
+            requestAnimFrame(update);
+
+            var mspeed;
+            mspeed = 0.2;
+
+            //Driving
+            var ldirection = leftWheel.GetTransform().R.col2.Copy();
+            ldirection.Multiply(engineSpeed);
+            var rdirection = rightWheel.GetTransform().R.col2.Copy()
+            rdirection.Multiply(engineSpeed);
+            leftWheel.ApplyForce(ldirection, leftWheel.GetPosition());
+            rightWheel.ApplyForce(rdirection, rightWheel.GetPosition());
+    
+            //Steering
+            var mspeed;
+            mspeed = steeringAngle - leftJoint.GetJointAngle();
+            leftJoint.SetMotorSpeed(mspeed * STEER_SPEED);
+            mspeed = steeringAngle - rightJoint.GetJointAngle();
+            rightJoint.SetMotorSpeed(mspeed * STEER_SPEED);
+
+         };
+        
+          //This function applies a "friction" in a direction orthogonal to the body's axis.
+          function killOrthogonalVelocity(targetBody){
+            var localPoint = new b2Vec2(0,0);
+            var velocity = targetBody.GetLinearVelocityFromLocalPoint(localPoint);
+            var sidewaysAxis = targetBody.GetTransform().R.col2.Copy();
+            sidewaysAxis.Multiply(b2Math.b2Dot(velocity,sidewaysAxis))
+            targetBody.SetLinearVelocity(sidewaysAxis);//targetBody.GetWorldPoint(localPoint));
+              
+          } 
+
+          b2Math.b2Dot = function(a, b)
+          {
+              return a.x * b.x + a.y * b.y;
+          } 
 
          // Function to detect circles and color them Red
          function drawCanvasObjects()
@@ -285,13 +269,7 @@
          }
         }
 
-        function keydown(e)
-        {
-         if (e.keyCode == 68) //press 'd'
-         {
-          drawDebug = !drawDebug;
-         }
-        }
+       
         window.addEventListener("load", init, true);        // insert the listener for onload event to call our init function    
     </script>
 </head>
