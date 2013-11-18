@@ -195,10 +195,7 @@
             
             world.ClearForces();
             requestAnimFrame(update);
-
-            var mspeed;
-            mspeed = 0.2;
-
+            
             //Driving
             var ldirection = leftWheel.GetTransform().R.col2.Copy();
             ldirection.Multiply(engineSpeed);
