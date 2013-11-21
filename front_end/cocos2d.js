@@ -27,28 +27,34 @@
 (function () {
     var d = document;
     var c = {
-        COCOS2D_DEBUG:2, //0 to turn debug off, 1 for basic debug, and 2 for full debug
+        COCOS2D_DEBUG:0, //0 to turn debug off, 1 for basic debug, and 2 for full debug
         box2d:true,
         chipmunk:false,
         showFPS:true,
         frameRate:60,
         loadExtension:false,
-        renderMode:1,       //Choose of RenderMode: 0(default), 1(Canvas only), 2(WebGL only)
+        renderMode:0,       //Choose of RenderMode: 0(default), 1(Canvas only), 2(WebGL only)
         tag:'gameCanvas', //the dom element to run cocos2d on
         engineDir:'src/libs/external/cocos2d/',
         //SingleEngineFile:'',
         appFiles:[
+            'src/libs/globant/box2dManager.js',
             'resources/images/TileMap.tmx',
             'src/game/resources.js',
             'src/game/scenes/creditsScene.js',
             'src/game/scenes/gameOverScene.js',
             'src/game/scenes/instructionsScene.js',
-            'src/game/actors/tank.js',
+            'src/game/actors/tankSprite.js',
             'src/game/scenes/gameScene.js',
             'src/game/scenes/box2DScene.js',
-            'src/game/scenes/wellcomeScene.js',
+            'src/game/scenes/wellcomeScene.js'
         ]
     };
+
+    // TODO: Aca va el tema del debug. by Facu.
+    // 
+    // 
+    
 
     if(!d.createElement('canvas').getContext){
         var s = d.createElement('div');

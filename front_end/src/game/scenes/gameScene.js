@@ -20,14 +20,7 @@ var GameLayer = cc.Layer.extend({
         var objectGroup = tileMap.getObjectGroup("Objects");
         var spawnPoint = objectGroup.objectNamed("player");
       
-        /*
-        var sprite = cc.Sprite.create("resources/images/Player.png");
-        sprite.setPosition(spawnPoint.x, spawnPoint.y);
-        sprite.setScale(0.5);
-        sprite.setRotation(180);
-        */
-        
-        this._playerSprite = new Tank();
+        this._playerSprite = new TankSprite();
         this._playerSprite.setPosition(spawnPoint.x, spawnPoint.y);
         this._playerSprite.scheduleUpdate();
         this._playerSprite.schedule(this.update);
@@ -40,33 +33,36 @@ var GameLayer = cc.Layer.extend({
         return true;
     },
     setViewPointCenter:function(position){
-          var winSize = cc.Director.getInstance().getWinSize();
-          var x = Math.max(position.x, winSize.width/2);
-          var y = Math.max(position.y, winSize.height/2);
-          var actualPosition = cc.PointMake(x, y);
-          var centerOfView = cc.PointMake(winSize.width/2, winSize.height/2);
-          var viewPoint = cppSub(centerOfView, actualPosition);
-          this.setPosition(viewPoint);
+        var winSize = cc.Director.getInstance().getWinSize();
+        var x = Math.max(position.x, winSize.width/2);
+        var y = Math.max(position.y, winSize.height/2);
+        var actualPosition = cc.p(x, y);
+        var centerOfView = cc.p(winSize.width/2, winSize.height/2);
+        var viewPoint = cppSub(centerOfView, actualPosition);
+        this.setPosition(viewPoint);
     },
     update:function(dt){
-        
-        
+        box2dManager.update();        
+        if (this._playerSprite){
+             this.setViewPointCenter( this._playerSprite.getPosition());
+        }
+            
     },
     onKeyDown:function(e){
         this._playerSprite.handleKey(e);
-        this.setViewPointCenter( this._playerSprite.getPosition());
+       
     }
             
 });
 
 function cppSub(pointA, pointB){
-    return cc.PointMake(pointA.x -pointB.x,pointA.y- pointB.y);
+    return cc.p(pointA.x -pointB.x,pointA.y- pointB.y);
 }
-
 
 var TileMeadow = cc.TMXTiledMap.extend({
     ctor: function(){
         this._super();
+        this.init();
         this.initWithTMXFile("resources/images/TileMap.tmx");
     }
     

@@ -33,8 +33,10 @@ var cocos2dApp = cc.Application.extend({
         cc.initDebugSetting();
         cc.setup(this.config['tag']);
         cc.AppController.shareAppController().didFinishLaunchingWithOptions();
+        box2dManager.initWorld("gameCanvas");
     },
     applicationDidFinishLaunching:function () {
+
         if(cc.RenderDoesnotSupport()){
             //show Information to user
             alert("Browser doesn't support WebGL");
@@ -56,6 +58,8 @@ var cocos2dApp = cc.Application.extend({
             director.replaceScene(new this.startScene());
         }, this);
 
+        //Box2dManager.initWorld("gameCanvas");
+           
         return true;
     }
 });
