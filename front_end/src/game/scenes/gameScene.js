@@ -22,8 +22,8 @@ var GameLayer = cc.Layer.extend({
       
         this._playerSprite = new TankSprite();
         this._playerSprite.setPosition(spawnPoint.x, spawnPoint.y);
-        this._playerSprite.scheduleUpdate();
-        this._playerSprite.schedule(this.update);
+        this.scheduleUpdate();
+        this.schedule(this.update);
         
         tileMap.addChild( this._playerSprite);
         
@@ -43,9 +43,10 @@ var GameLayer = cc.Layer.extend({
     },
     update:function(dt){
         box2dManager.update();        
-        if (this._playerSprite){
+        if (typeof this._playerSprite != "undefined"){
              this.setViewPointCenter( this._playerSprite.getPosition());
-        }
+         };
+        this._playerSprite.update();
             
     },
     onKeyDown:function(e){
