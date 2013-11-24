@@ -1,7 +1,7 @@
 
 var s_Player = "resources/images/tank.png";
 var s_TMX_Map = "resources/images/TileMap.tmx";
-var s_TMX_Map_Image = "resources/images/tmw_desert_spacing.png";
+var s_TMX_Map_Image = "resources/images/terrain_atlas.png";
 
 var g_resources = [
     //image
