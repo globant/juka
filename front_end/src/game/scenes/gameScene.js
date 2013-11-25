@@ -58,7 +58,9 @@ var GameLayer = cc.Layer.extend({
     },
     onKeyDown:function(e){
         this._playerSprite.handleKey(e);
-       
+    },
+    onKeyUp:function(e){
+      this._playerSprite.onKeyUp(e);
     }
             
 });
