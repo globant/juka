@@ -6,276 +6,298 @@
 <!-- http://box2d.org/manual.pdf -->
 
 <html>
-<head>
+  <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=9">
     <title>Cocos2D-JS Simple Game Demo | raywenderlich.com</title>
     <script src="box2d.js"></script>
 
     <script>
-    
-        var canvas, context, screenW, screenH, world, drawDebug;
+
+      var canvas, context, screenW, screenH, world, drawDebug;
 
 
-        // bunch of variables required for various box2d objects
-        var b2Vec2 = Box2D.Common.Math.b2Vec2
-        ,b2AABB = Box2D.Collision.b2AABB
-        ,b2BodyDef = Box2D.Dynamics.b2BodyDef
-        ,b2Body = Box2D.Dynamics.b2Body
-        ,b2FixtureDef = Box2D.Dynamics.b2FixtureDef
-        ,b2Fixture = Box2D.Dynamics.b2Fixture
-        ,b2World = Box2D.Dynamics.b2World
-        ,b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
-        ,b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
-        ,b2DebugDraw = Box2D.Dynamics.b2DebugDraw
-        ,b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef
-        ,b2RevoluteJoint =  Box2D.Dynamics.Joints.b2RevoluteJoint
-        ,b2PrismaticJointDef = Box2D.Dynamics.Joints.b2PrismaticJointDef
-        ,b2Math = Box2D.Common.Math.b2Math
-        ;
+      // bunch of variables required for various box2d objects
+      var b2Vec2 = Box2D.Common.Math.b2Vec2
+              , b2AABB = Box2D.Collision.b2AABB
+              , b2BodyDef = Box2D.Dynamics.b2BodyDef
+              , b2Body = Box2D.Dynamics.b2Body
+              , b2FixtureDef = Box2D.Dynamics.b2FixtureDef
+              , b2Fixture = Box2D.Dynamics.b2Fixture
+              , b2World = Box2D.Dynamics.b2World
+              , b2PolygonShape = Box2D.Collision.Shapes.b2PolygonShape
+              , b2CircleShape = Box2D.Collision.Shapes.b2CircleShape
+              , b2DebugDraw = Box2D.Dynamics.b2DebugDraw
+              , b2RevoluteJointDef = Box2D.Dynamics.Joints.b2RevoluteJointDef
+              , b2RevoluteJoint = Box2D.Dynamics.Joints.b2RevoluteJoint
+              , b2PrismaticJointDef = Box2D.Dynamics.Joints.b2PrismaticJointDef
+              , b2Math = Box2D.Common.Math.b2Math
+              ;
 
-        var MAX_STEER_ANGLE = Math.PI/3;
-        var STEER_SPEED = 1.5;
-        var SIDEWAYS_FRICTION_FORCE = 10;
-        var HORSEPOWERS = 40
-        var CAR_STARTING_POS = new b2Vec2(10,10);
- 
-        var leftRearWheelPosition = new b2Vec2(-1.5,1.90);
-        var rightRearWheelPosition = new b2Vec2(1.5,1.9);
-        var leftFrontWheelPosition = new b2Vec2(-1.5,-1.9);
-        var rightFrontWheelPosition = new b2Vec2(1.5,-1.9);
+      var MAX_STEER_ANGLE = Math.PI / 3;
+      var STEER_SPEED = 1.5;
+      var SIDEWAYS_FRICTION_FORCE = 10;
+      var HORSEPOWERS = 40
+      var CAR_STARTING_POS = new b2Vec2(10, 10);
 
-        var engineSpeed =0;
-        var steeringAngle = 0
+      var leftRearWheelPosition = new b2Vec2(-1.5, 1.90);
+      var rightRearWheelPosition = new b2Vec2(1.5, 1.9);
+      var leftFrontWheelPosition = new b2Vec2(-1.5, -1.9);
+      var rightFrontWheelPosition = new b2Vec2(1.5, -1.9);
 
-        function init()
-        {
-         // Defining and initializing our canvas elements
-         window.onkeydown = keydown;
-         canvas = document.getElementById("canvas");
-         context = canvas.getContext("2d");
-         screenW = canvas.width, screenH = canvas.height;
+      var engineSpeed = 0;
+      var steeringAngle = 0
 
-          // Define the world
-          world = new b2World(
-                       new b2Vec2(0, 0)    //gravity of 10 in downward y direction
-                    ,  true                 //allows objects to sleep if they are in equilibrium, indicated by change of color from Red to Grey in debugDraw mode
-                 );
+      function init()
+      {
+        // Defining and initializing our canvas elements
+        window.onkeydown = keydown;
+        window.onkeyup = keyup;
+        canvas = document.getElementById("canvas");
+        context = canvas.getContext("2d");
+        screenW = canvas.width, screenH = canvas.height;
 
-          // Scale is required to convert our pixel space into meters. A scale of 10 means 10px = 1m
-          var scale = 20.0;
+        // Define the world
+        world = new b2World(
+                new b2Vec2(0, 0)    //gravity of 10 in downward y direction
+                , true                 //allows objects to sleep if they are in equilibrium, indicated by change of color from Red to Grey in debugDraw mode
+                );
 
-          var fixDef = new b2FixtureDef;
+        // Scale is required to convert our pixel space into meters. A scale of 10 means 10px = 1m
+        var scale = 20.0;
 
-          // define our body
-          var bodyDef = new b2BodyDef();
-          bodyDef.linearDamping = 1;
-          bodyDef.angularDamping = 1;
-          bodyDef.position = CAR_STARTING_POS.Copy()  
-          fixDef.density = 1;
-          fixDef.shape = new b2PolygonShape;
-          fixDef.shape.SetAsBox(1.5, 2.5);
-          bodyDef.type = b2Body.b2_dynamicBody;
-          var body = world.CreateBody(bodyDef);
-          body.CreateFixture(fixDef);
+        var fixDef = new b2FixtureDef;
 
-          var leftWheelDef = new b2BodyDef();
-          leftWheelDef.position = CAR_STARTING_POS.Copy();
-          leftWheelDef.position.Add(leftFrontWheelPosition);
-          fixDef.shape =  new b2PolygonShape;
-          fixDef.shape.SetAsBox(0.2,0.5);
-          fixDef.density = 1;
-          leftWheelDef.type = b2Body.b2_dynamicBody;
-          var leftWheel = world.CreateBody(leftWheelDef);
-          leftWheel.CreateFixture(fixDef);       
+        // define our body
+        var bodyDef = new b2BodyDef();
+        bodyDef.linearDamping = 1;
+        bodyDef.angularDamping = 1;
+        bodyDef.position = CAR_STARTING_POS.Copy()
+        fixDef.density = 1;
+        fixDef.shape = new b2PolygonShape;
+        fixDef.shape.SetAsBox(1.5, 2.5);
+        bodyDef.type = b2Body.b2_dynamicBody;
+        var body = world.CreateBody(bodyDef);
+        body.CreateFixture(fixDef);
 
-          var rightWheelDef = new b2BodyDef();
-          rightWheelDef.position = CAR_STARTING_POS.Copy();
-          rightWheelDef.position.Add(rightFrontWheelPosition);
-          fixDef.shape = new b2PolygonShape;
-          fixDef.shape.SetAsBox(0.2,0.5);
-          fixDef.density = 1;
-          rightWheelDef.type = b2Body.b2_dynamicBody;
-          var rightWheel = world.CreateBody(rightWheelDef);
-          rightWheel.CreateFixture(fixDef);
+        var leftWheelDef = new b2BodyDef();
+        leftWheelDef.position = CAR_STARTING_POS.Copy();
+        leftWheelDef.position.Add(leftFrontWheelPosition);
+        fixDef.shape = new b2PolygonShape;
+        fixDef.shape.SetAsBox(0.2, 0.5);
+        fixDef.density = 1;
+        leftWheelDef.type = b2Body.b2_dynamicBody;
+        var leftWheel = world.CreateBody(leftWheelDef);
+        leftWheel.CreateFixture(fixDef);
 
-          var leftRearWheelDef = new b2BodyDef();
-          leftRearWheelDef.position = CAR_STARTING_POS.Copy();
-          leftRearWheelDef.position.Add(leftRearWheelPosition);
-          fixDef.shape = new b2PolygonShape;
-          fixDef.shape.SetAsBox(0.2,0.5);
-          fixDef.density = 1;
-          leftRearWheelDef.type = b2Body.b2_dynamicBody;
-          var leftRearWheel = world.CreateBody(leftRearWheelDef);
-          leftRearWheel.CreateFixture(fixDef);
-       
-          var rightRearWheelDef = new b2BodyDef();
-          rightRearWheelDef.position = CAR_STARTING_POS.Copy();
-          rightRearWheelDef.position.Add(rightRearWheelPosition);
-          fixDef.shape = new b2PolygonShape;
-          fixDef.shape.SetAsBox(0.2,0.5);
-          fixDef.density = 1;
-          rightRearWheelDef.type = b2Body.b2_dynamicBody;
-          var rightRearWheel = world.CreateBody(rightRearWheelDef);
-          rightRearWheel.CreateFixture(fixDef);
-          
-          
-          var leftJointDef = new b2RevoluteJointDef();
-          leftJointDef.Initialize(body, leftWheel, leftWheel.GetWorldCenter());
-          leftJointDef.enableMotor = true;
-          leftJointDef.maxMotorTorque = 100;
-          var leftJoint = world.CreateJoint(leftJointDef);
-          
+        var rightWheelDef = new b2BodyDef();
+        rightWheelDef.position = CAR_STARTING_POS.Copy();
+        rightWheelDef.position.Add(rightFrontWheelPosition);
+        fixDef.shape = new b2PolygonShape;
+        fixDef.shape.SetAsBox(0.2, 0.5);
+        fixDef.density = 1;
+        rightWheelDef.type = b2Body.b2_dynamicBody;
+        var rightWheel = world.CreateBody(rightWheelDef);
+        rightWheel.CreateFixture(fixDef);
 
-          var rightJointDef = new b2RevoluteJointDef();
-          rightJointDef.Initialize(body, rightWheel, rightWheel.GetWorldCenter());
-          rightJointDef.enableMotor = true;
-          rightJointDef.maxMotorTorque = 100;
-          var rightJoint = world.CreateJoint(rightJointDef);
-            
-          var leftRearJointDef = new b2PrismaticJointDef();
-          leftRearJointDef.Initialize(body, leftRearWheel, leftRearWheel.GetWorldCenter(), new b2Vec2(1,0));
-          leftRearJointDef.enableLimit = true;
-          leftRearJointDef.lowerTranslation = leftRearJointDef.upperTranslation = 0;
-          var leftRearJoint = world.CreateJoint(leftRearJointDef);
- 
-          var rightRearJointDef = new b2PrismaticJointDef();
-          rightRearJointDef.Initialize(body, rightRearWheel, rightRearWheel.GetWorldCenter(), new b2Vec2(1,0));
-          rightRearJointDef.enableLimit = true;
-          rightRearJointDef.lowerTranslation = rightRearJointDef.upperTranslation = 0;
-          var rightRearJoint = world.CreateJoint(rightRearJointDef);
+        var leftRearWheelDef = new b2BodyDef();
+        leftRearWheelDef.position = CAR_STARTING_POS.Copy();
+        leftRearWheelDef.position.Add(leftRearWheelPosition);
+        fixDef.shape = new b2PolygonShape;
+        fixDef.shape.SetAsBox(0.2, 0.5);
+        fixDef.density = 1;
+        leftRearWheelDef.type = b2Body.b2_dynamicBody;
+        var leftRearWheel = world.CreateBody(leftRearWheelDef);
+        leftRearWheel.CreateFixture(fixDef);
+
+        var rightRearWheelDef = new b2BodyDef();
+        rightRearWheelDef.position = CAR_STARTING_POS.Copy();
+        rightRearWheelDef.position.Add(rightRearWheelPosition);
+        fixDef.shape = new b2PolygonShape;
+        fixDef.shape.SetAsBox(0.2, 0.5);
+        fixDef.density = 1;
+        rightRearWheelDef.type = b2Body.b2_dynamicBody;
+        var rightRearWheel = world.CreateBody(rightRearWheelDef);
+        rightRearWheel.CreateFixture(fixDef);
+
+        var blockDef = new b2BodyDef();
+//        blockDef.linearDampint = 1;
+//        blockDef.angularDamping = 1;
+        blockDef.position = new b2Vec2(5, 5);
+        fixDef.shape = new b2PolygonShape;
+        fixDef.shape.SetAsBox(1, 2);
+        fixDef.density = 1;
+        blockDef.type = b2Body.b2_staticBody;
+
+        var block = world.CreateBody(blockDef);
+        block.CreateFixture(fixDef);
 
 
-          // A callback for animation. It is widely suggested to use requestAnimFrame instead of setTimeout or setInterval for better animation performance.
-          window.requestAnimFrame = (function(){
-             return  window.requestAnimationFrame       ||
-             window.webkitRequestAnimationFrame ||
-             window.mozRequestAnimationFrame    ||
-             window.oRequestAnimationFrame      ||
-             window.msRequestAnimationFrame     ||
-             function(/* function */ callback, /* DOMElement */ element){
-              window.setTimeout(callback, 1000 / 60);
-             };
-         })();
+        var leftJointDef = new b2RevoluteJointDef();
+        leftJointDef.Initialize(body, leftWheel, leftWheel.GetWorldCenter());
+        leftJointDef.enableMotor = true;
+        leftJointDef.maxMotorTorque = 100;
+        var leftJoint = world.CreateJoint(leftJointDef);
 
-         function keydown(e){
-            if (e.keyCode == 37) {
-              steeringAngle = -MAX_STEER_ANGLE
-            }else if (e.keyCode == 39){ 
-              steeringAngle = MAX_STEER_ANGLE
-            }else if (e.keyCode == 38){ // presss 'up'
-              engineSpeed = -HORSEPOWERS;
-            }else if (e.keyCode == 40){ // press 'down' 
-              engineSpeed = HORSEPOWERS;
-            }
+
+        var rightJointDef = new b2RevoluteJointDef();
+        rightJointDef.Initialize(body, rightWheel, rightWheel.GetWorldCenter());
+        rightJointDef.enableMotor = true;
+        rightJointDef.maxMotorTorque = 100;
+        var rightJoint = world.CreateJoint(rightJointDef);
+
+        var leftRearJointDef = new b2PrismaticJointDef();
+        leftRearJointDef.Initialize(body, leftRearWheel, leftRearWheel.GetWorldCenter(), new b2Vec2(1, 0));
+        leftRearJointDef.enableLimit = true;
+        leftRearJointDef.lowerTranslation = leftRearJointDef.upperTranslation = 0;
+        var leftRearJoint = world.CreateJoint(leftRearJointDef);
+
+        var rightRearJointDef = new b2PrismaticJointDef();
+        rightRearJointDef.Initialize(body, rightRearWheel, rightRearWheel.GetWorldCenter(), new b2Vec2(1, 0));
+        rightRearJointDef.enableLimit = true;
+        rightRearJointDef.lowerTranslation = rightRearJointDef.upperTranslation = 0;
+        var rightRearJoint = world.CreateJoint(rightRearJointDef);
+
+
+        // A callback for animation. It is widely suggested to use requestAnimFrame instead of setTimeout or setInterval for better animation performance.
+        window.requestAnimFrame = (function() {
+          return  window.requestAnimationFrame ||
+                  window.webkitRequestAnimationFrame ||
+                  window.mozRequestAnimationFrame ||
+                  window.oRequestAnimationFrame ||
+                  window.msRequestAnimationFrame ||
+                  function(/* function */ callback, /* DOMElement */ element) {
+                    window.setTimeout(callback, 1000 / 60);
+                  };
+        })();
+
+        function keydown(e) {
+          if (e.keyCode == 37) {
+            steeringAngle = -MAX_STEER_ANGLE
+          } else if (e.keyCode == 39) {
+            steeringAngle = MAX_STEER_ANGLE
+          } else if (e.keyCode == 38) { // presss 'up'
+            engineSpeed = -HORSEPOWERS;
+          } else if (e.keyCode == 40) { // press 'down' 
+            engineSpeed = HORSEPOWERS;
           }
-
-          requestAnimFrame(update);
-
-          var debugDraw = new b2DebugDraw();
-          debugDraw.SetSprite(context);
-          debugDraw.SetDrawScale(scale);
-          debugDraw.SetFillAlpha(0.5);
-          debugDraw.SetLineThickness(1.0);
-          debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
-
-          world.SetDebugDraw(debugDraw);
-
-        
-          function update() {
-            world.Step(1 / 60, 3, 3); 
-            world.DrawDebugData();
-            
-            
-            killOrthogonalVelocity(leftWheel);
-            killOrthogonalVelocity(rightWheel);
-            killOrthogonalVelocity(leftRearWheel);
-            killOrthogonalVelocity(rightRearWheel);
-            
-            world.ClearForces();
-            requestAnimFrame(update);
-            
-            //Driving
-            var ldirection = leftWheel.GetTransform().R.col2.Copy();
-            ldirection.Multiply(engineSpeed);
-            var rdirection = rightWheel.GetTransform().R.col2.Copy()
-            rdirection.Multiply(engineSpeed);
-            leftWheel.ApplyForce(ldirection, leftWheel.GetPosition());
-            rightWheel.ApplyForce(rdirection, rightWheel.GetPosition());
-    
-            //Steering
-            var mspeed;
-            mspeed = steeringAngle - leftJoint.GetJointAngle();
-            leftJoint.SetMotorSpeed(mspeed * STEER_SPEED);
-            mspeed = steeringAngle - rightJoint.GetJointAngle();
-            rightJoint.SetMotorSpeed(mspeed * STEER_SPEED);
-
-         };
-        
-          //This function applies a "friction" in a direction orthogonal to the body's axis.
-          function killOrthogonalVelocity(targetBody){
-            var localPoint = new b2Vec2(0,0);
-            var velocity = targetBody.GetLinearVelocityFromLocalPoint(localPoint);
-            var sidewaysAxis = targetBody.GetTransform().R.col2.Copy();
-            sidewaysAxis.Multiply(b2Math.b2Dot(velocity,sidewaysAxis))
-            targetBody.SetLinearVelocity(sidewaysAxis);//targetBody.GetWorldPoint(localPoint));
-              
-          } 
-
-          b2Math.b2Dot = function(a, b)
-          {
-              return a.x * b.x + a.y * b.y;
-          } 
-
-         // Function to detect circles and color them Red
-         function drawCanvasObjects()
-         {
-          var node = world.GetBodyList(); // returns list of all bodies attached to this world
-          while(node)
-          {
-           var curr = node;
-           node = node.GetNext();
-
-           // Check if the identified body is of type dynamic. Remember we defined our circles as dynamic body types
-           if(curr.GetType() == b2Body.b2_dynamicBody)
-           {
-            // Get the shape from the list of retrieved fixtures defined during initialization for each body
-            var shape = curr.GetFixtureList().GetShape();
-
-            if(shape.GetType() == circle.GetType())
-            {   // If shape is circle
-             var position = curr.GetPosition(); // Get the body's position in the world
-
-             // We need to scale back the position coordinates to map them back to canvas coordinates
-             var canvasY = position.y*scale;
-             var canvasX = position.x*scale;
-
-             // boundary color = white
-             context.strokeStyle = "#000000";
-             // fill color = red
-             context.fillStyle = "#FF0000";
-             context.beginPath();
-             context.arc(canvasX,canvasY,shape.GetRadius()*scale,0,Math.PI*2,true);
-             context.closePath();
-             context.stroke();
-             context.fill();
-            }
-           }
-          }
-         }
         }
 
-       
-        window.addEventListener("load", init, true);        // insert the listener for onload event to call our init function    
+        function keyup(e) {
+          if (e.keyCode === 37 || e.keyCode === 39) {
+            steeringAngle = 0;
+          } else if (e.keyCode === 38 || e.keyCode === 40) {
+            engineSpeed = 0;
+          }
+        }
+
+        requestAnimFrame(update);
+
+        var debugDraw = new b2DebugDraw();
+        debugDraw.SetSprite(context);
+        debugDraw.SetDrawScale(scale);
+        debugDraw.SetFillAlpha(0.5);
+        debugDraw.SetLineThickness(1.0);
+        debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
+
+        world.SetDebugDraw(debugDraw);
+
+
+        function update() {
+          world.Step(1 / 60, 3, 3);
+          world.DrawDebugData();
+
+
+          killOrthogonalVelocity(leftWheel);
+          killOrthogonalVelocity(rightWheel);
+          killOrthogonalVelocity(leftRearWheel);
+          killOrthogonalVelocity(rightRearWheel);
+
+          world.ClearForces();
+          requestAnimFrame(update);
+
+          //Driving
+          var ldirection = leftWheel.GetTransform().R.col2.Copy();
+          ldirection.Multiply(engineSpeed);
+          var rdirection = rightWheel.GetTransform().R.col2.Copy()
+          rdirection.Multiply(engineSpeed);
+          leftWheel.ApplyForce(ldirection, leftWheel.GetPosition());
+          rightWheel.ApplyForce(rdirection, rightWheel.GetPosition());
+
+          //Steering
+          var mspeed;
+          mspeed = steeringAngle - leftJoint.GetJointAngle();
+          leftJoint.SetMotorSpeed(mspeed * STEER_SPEED);
+          mspeed = steeringAngle - rightJoint.GetJointAngle();
+          rightJoint.SetMotorSpeed(mspeed * STEER_SPEED);
+
+        }
+        ;
+
+        //This function applies a "friction" in a direction orthogonal to the body's axis.
+        function killOrthogonalVelocity(targetBody) {
+          var localPoint = new b2Vec2(0, 0);
+          var velocity = targetBody.GetLinearVelocityFromLocalPoint(localPoint);
+          var sidewaysAxis = targetBody.GetTransform().R.col2.Copy();
+          sidewaysAxis.Multiply(b2Math.b2Dot(velocity, sidewaysAxis))
+          targetBody.SetLinearVelocity(sidewaysAxis);//targetBody.GetWorldPoint(localPoint));
+
+        }
+
+        b2Math.b2Dot = function(a, b)
+        {
+          return a.x * b.x + a.y * b.y;
+        }
+
+        // Function to detect circles and color them Red
+        function drawCanvasObjects()
+        {
+          var node = world.GetBodyList(); // returns list of all bodies attached to this world
+          while (node)
+          {
+            var curr = node;
+            node = node.GetNext();
+
+            // Check if the identified body is of type dynamic. Remember we defined our circles as dynamic body types
+            if (curr.GetType() == b2Body.b2_dynamicBody)
+            {
+              // Get the shape from the list of retrieved fixtures defined during initialization for each body
+              var shape = curr.GetFixtureList().GetShape();
+
+              if (shape.GetType() == circle.GetType())
+              {   // If shape is circle
+                var position = curr.GetPosition(); // Get the body's position in the world
+
+                // We need to scale back the position coordinates to map them back to canvas coordinates
+                var canvasY = position.y * scale;
+                var canvasX = position.x * scale;
+
+                // boundary color = white
+                context.strokeStyle = "#000000";
+                // fill color = red
+                context.fillStyle = "#FF0000";
+                context.beginPath();
+                context.arc(canvasX, canvasY, shape.GetRadius() * scale, 0, Math.PI * 2, true);
+                context.closePath();
+                context.stroke();
+                context.fill();
+              }
+            }
+          }
+        }
+      }
+
+
+      window.addEventListener("load", init, true);        // insert the listener for onload event to call our init function    
     </script>
-</head>
-<body style="text-align: center;background: #f2f6f8;">
-<img style="clear:both;margin-bottom: 20px" src="logo.png"/>
+  </head>
+  <body style="text-align: center;background: #f2f6f8;">
+    <img style="clear:both;margin-bottom: 20px" src="logo.png"/>
 
-<div></div>
-<div style="display:inline-block;width:auto; margin: 0 auto; background: black; position:relative; border:5px solid black; border-radius: 10px; box-shadow: 0 5px 50px #333">
-    <canvas id="canvas" width="800" height="450"></canvas>
-</div>
+    <div></div>
+    <div style="display:inline-block;width:auto; margin: 0 auto; background: black; position:relative; border:5px solid black; border-radius: 10px; box-shadow: 0 5px 50px #333">
+      <canvas id="canvas" width="800" height="450"></canvas>
+    </div>
 
-</body>
+  </body>
 </html>
