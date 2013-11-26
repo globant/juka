@@ -19,11 +19,6 @@ var GameLayer = cc.Layer.extend({
     var objectGroup = tileMap.getObjectGroup("Objects");
     var spawnPoint = objectGroup.objectNamed("player");
 
-    // var mainThinks = tileMap.getObjectGroup("MainThinks");
-    // mainThinks.setVertexZ(10);
-    // var baseMap = tileMap.getObjectGroup("Base");
-    // baseMap.setVertexZ(20);
-
     this._playerSprite = new TankSprite();
     this._playerSprite.setPosition(spawnPoint.x, spawnPoint.y);
     this.scheduleUpdate();
@@ -32,9 +27,32 @@ var GameLayer = cc.Layer.extend({
     tileMap.addChild(this._playerSprite);
 
     this.addChild(tileMap);
-    // this.addChild(mainThinks);
-    // this.addChild(baseMap);
     this.setViewPointCenter(this._playerSprite.getPosition());
+    
+    
+    var staticsGroup = tileMap.getObjectGroup("Statics").getObjects();
+    var world = box2dManager.world;
+    var fixDef = new b2FixtureDef();
+        
+    for (i = 0; i < staticsGroup.length; ++i) {
+      var body = staticsGroup[i];
+      if(undefined === body.polylinePoints){
+        
+        console.log('name: ' + (body.name));
+        console.log('x: ' + (body.x /29));
+        console.log('y: ' + (body.y /29));
+        
+        var blockDef = new b2BodyDef();
+        blockDef.position = new b2Vec2(body.y /29, body.x /29);
+        fixDef.shape = new b2PolygonShape;
+        fixDef.shape.SetAsBox(0.2, 0.2);
+        fixDef.density = 1;
+        blockDef.type = b2Body.b2_staticBody;
+
+        var block = world.CreateBody(blockDef);
+        block.CreateFixture(fixDef);
+      }
+    }
 
     return true;
   },
@@ -61,7 +79,7 @@ var GameLayer = cc.Layer.extend({
   },
   onKeyUp: function(e) {
     this._playerSprite.onKeyUp(e);
-  }
+  },
 
 });
 

@@ -19,6 +19,14 @@ var TankSprite = cc.Sprite.extend({
     this._super();
     this.initWithFile("resources/images/tank.png");
     this._initBox2DBody(box2dManager.world);
+    
+    var debugDraw = new b2DebugDraw();
+    debugDraw.SetSprite(cc.renderContext);
+    debugDraw.SetDrawScale(PTM_RATIO);
+    debugDraw.SetFillAlpha(0.3);
+    debugDraw.SetLineThickness(1.0);
+    debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
+    box2dManager.world.SetDebugDraw(debugDraw);
   },
   _initBox2DBody: function() {
 
@@ -112,6 +120,7 @@ var TankSprite = cc.Sprite.extend({
     rightRearJointDef.enableLimit = true;
     rightRearJointDef.lowerTranslation = rightRearJointDef.upperTranslation = 0;
     this.b.rightRearJoint = world.CreateJoint(rightRearJointDef);
+    
 
   },
   update: function() {
@@ -161,6 +170,7 @@ var TankSprite = cc.Sprite.extend({
       targetBody.SetLinearVelocity(sidewaysAxis);
     }
 
+        box2dManager.world.DrawDebugData();
   },
   handleKey: function(e) {
     if (e === cc.KEY.left) {
