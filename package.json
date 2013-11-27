@@ -1,33 +1,28 @@
 {
-  "name": "OpenShift-Sample-App",
+  "name": "Juka",
   "version": "1.0.0",
-  "description": "OpenShift Sample Application",
+  "description": "Juka",
   "keywords": [
-    "OpenShift",
+    "Cocos2d",
     "Node.js",
-    "application",
-    "openshift"
+    "WebSocket"
   ],
   "author": {
-    "name": "OpenShift",
-    "email": "ramr@example.org",
-    "url":  "http://www.openshift.com/"
+    "name": "Globant S.A.",
+    "email": "",
+    "url":  "http://www.globant.com/"
   },
-  "homepage": "http://www.openshift.com/",
-  "repository": {
-    "type": "git",
-    "url": "https://gitub.com/openshift/origin-server"
-  },
-
+  "homepage": "http://www.globant.com/",
   "engines": {
     "node": ">= 0.6.0",
     "npm": ">= 1.0.0"
   },
 
   "dependencies": {
+    "express": "2.5.8",
+    "socket.io": "0.9.16",
+    "box2d":  "1.0.0"
   },
-  "devDependencies": {},
-  "bundleDependencies": [],
 
   "private": true,
   "main": "server.js"

@@ -4,15 +4,19 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=9">
-    <title>Cocos2D-JS Simple Game Demo | raywenderlich.com</title>
+    <title>Juka tanks</title>
 </head>
-<body style="text-align: center;background: #f2f6f8;" onload="init()">
-<img style="clear:both;margin-bottom: 20px" src="logo.png"/>
+<body style="text-align: center;background: #f2f6f8;">
 
 <div></div>
 <div style="display:inline-block;width:auto; margin: 0 auto; background: black; position:relative; border:5px solid black; border-radius: 10px; box-shadow: 0 5px 50px #333">
     <canvas id="gameCanvas" width="800" height="450"></canvas>
 </div>
 <script src="cocos2d.js"></script>
+<script src="src/libs/socket.io.js">
+	window.socket = io.connect('http://localhost:8080');
+	socket.emit("fire");
+	socket.on("fire");
+</script>
 </body>
 </html>
