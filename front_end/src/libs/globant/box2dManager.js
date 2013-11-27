@@ -5,6 +5,8 @@ b2CircleShape,b2DebugDraw,b2RevoluteJointDef,b2RevoluteJoint,b2PrismaticJointDef
 
 var context;
 
+
+
 var box2dManager = {
 
         canvas:null,
@@ -78,7 +80,7 @@ var box2dManager = {
                 if (b.GetUserData() != null) {
                     //Synchronize the AtlasSprites position and rotation with the corresponding body
                     var myActor = b.GetUserData();
-                    myActor.setPosition(cc.p(b.GetPosition().x * PTM_RATIO, b.GetPosition().y * PTM_RATIO));
+                    myActor.setPosition(cc.p(b.GetPosition().x * this.scale, b.GetPosition().y * this.scale));
                     myActor.setRotation(-1 * cc.RADIANS_TO_DEGREES(b.GetAngle()));
                     //console.log(b.GetAngle());
                 }

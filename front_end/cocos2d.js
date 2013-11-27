@@ -39,6 +39,7 @@
         //SingleEngineFile:'',
         appFiles:[
             'src/libs/globant/box2dManager.js',
+            'src/libs/globant/socketClient.js',
             'resources/images/TileMap.tmx',
             'src/game/resources.js',
             'src/game/scenes/creditsScene.js',
@@ -46,7 +47,6 @@
             'src/game/scenes/instructionsScene.js',
             'src/game/actors/tankSprite.js',
             'src/game/scenes/gameScene.js',
-            'src/game/scenes/box2DScene.js',
             'src/game/scenes/wellcomeScene.js'
         ]
     };
