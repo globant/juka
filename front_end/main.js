@@ -33,7 +33,7 @@ var cocos2dApp = cc.Application.extend({
         cc.initDebugSetting();
         cc.setup(this.config['tag']);
         cc.AppController.shareAppController().didFinishLaunchingWithOptions();
-        box2dManager.initWorld("gameCanvas");
+        //box2dManager.initWorld("gameCanvas");
     },
     applicationDidFinishLaunching:function () {
 
@@ -59,8 +59,8 @@ var cocos2dApp = cc.Application.extend({
         }, this);
 
         //Box2dManager.initWorld("gameCanvas");
-           
+       
         return true;
     }
 });
-var myApp = new cocos2dApp(WellcomeScene);
+var myApp = new cocos2dApp(MenuScene);

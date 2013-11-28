@@ -47,7 +47,8 @@
             'src/game/scenes/instructionsScene.js',
             'src/game/actors/tankSprite.js',
             'src/game/scenes/gameScene.js',
-            'src/game/scenes/wellcomeScene.js'
+            'src/game/scenes/menuScene.js',
+            'src/game/scenes/waitingPlayerScene.js'
         ]
     };
 

@@ -77,6 +77,11 @@ sio.sockets.on('connection', function (client) {
 	client.on('disconnect', function(){
 		console.log("disconnect", client.id);
 		sio.sockets.emit('playerDisconnected', client.id);
+		if (client.id === playerOne.id){
+			playerOne = null;
+		}else{
+			playerTwo = null;
+		}
 	});
 	
 }); /** End on connection */

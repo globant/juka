@@ -18,10 +18,11 @@ var TankSprite = cc.Sprite.extend({
   ctor: function() {
     this._super();
     this.initWithFile("resources/images/tank.png");
-    this._initBox2DBody(box2dManager.world);
+    //this._initBox2DBody(box2dManager.world);
+    
   },
   _initBox2DBody: function() {
-
+    /*
     this.maxSteerAngle = Math.PI / 3;
     this.steerSpeed = 1.5;
     this.sidewaysFrictionForce = 10;
@@ -112,11 +113,14 @@ var TankSprite = cc.Sprite.extend({
     rightRearJointDef.enableLimit = true;
     rightRearJointDef.lowerTranslation = rightRearJointDef.upperTranslation = 0;
     this.b.rightRearJoint = world.CreateJoint(rightRearJointDef);
-
+    */
   },
   update: function() {
 
+    this.setRotation(this.currentRotation);
+
     //This function applies a "friction" in a direction orthogonal to the body's axis.
+    /*
     function killOrthogonalVelocity(targetBody) {
       var localPoint = new b2Vec2(0, 0);
       var velocity = targetBody.GetLinearVelocityFromLocalPoint(localPoint);
@@ -160,25 +164,45 @@ var TankSprite = cc.Sprite.extend({
       sidewaysAxis.Multiply(b2Math.b2Dot(velocity, sidewaysAxis));
       targetBody.SetLinearVelocity(sidewaysAxis);
     }
-
+  */
   },
   handleKey: function(e) {
+
+    var newX, newY;
+
     if (e === cc.KEY.left) {
-      this.steeringAngle = -MAX_STEER_ANGLE;
+       this.currentRotation-=10;
+      //this.steeringAngle = -MAX_STEER_ANGLE;
     } else if (e === cc.KEY.right) {
-      this.steeringAngle = MAX_STEER_ANGLE;
+       this.currentRotation+=10;
+      //this.steeringAngle = MAX_STEER_ANGLE;
     } else if (e === cc.KEY.up) {
-      this.engineSpeed = HORSEPOWERS;
+      newX = this.getPositionX() + Math.cos(this.currentRotation * Math.PI/180) * 10;
+      newY = this.getPositionY() - Math.sin(this.currentRotation * Math.PI/180) * 10;
+           
+      this.setPositionX(newX);
+      this.setPositionY(newY);
+      //this.engineSpeed = HORSEPOWERS;
     } else if (e === cc.KEY.down) {
-      this.engineSpeed = -HORSEPOWERS;
+      //this.engineSpeed = -HORSEPOWERS;
+      
+      newX = this.getPositionX() - Math.cos(this.currentRotation * Math.PI/180) * 10;
+      newY = this.getPositionY() + Math.sin(this.currentRotation * Math.PI/180) * 10;
+           
+      this.setPositionX(newX);
+      this.setPositionY(newY);
     }
+    if(this.currentRotation < 0) this.currentRotation = 360;
+    if(this.currentRotation > 360) this.currentRotation = 0;
   },
   onKeyUp: function(e) {
+    /*
     if (e === cc.KEY.left || e === cc.KEY.right) {
       this.steeringAngle = 0;
     } else if (e === cc.KEY.up || e === cc.KEY.down) {
       this.engineSpeed = 0;
     }
+    */
   }
 
 });
