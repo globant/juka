@@ -25,23 +25,28 @@ var GameLayer = cc.Layer.extend({
         this.playerOneSprite = new TankSprite();
         this.playerOneSprite.setPosition(spawnPoint.x, spawnPoint.y);
         tileMap.addChild(this.playerOneSprite);
+        socketClient.setPlayerOneSprite(this.playerOneSprite);
+
 
         this.playerTwoSprite = new TankSprite();
         this.playerTwoSprite.setPosition(spawnPoint.x + 100, spawnPoint.y);
         tileMap.addChild(this.playerTwoSprite);
-
+        socketClient.setPlayerTwoSprite(this.playerTwoSprite);
+        
         this.addChild(tileMap);
 
         this.scheduleUpdate();
         this.schedule(this.update);
         
-        this.setViewPointCenter( this.playerOneSprite.getPosition());
-        
+        console.log("socketClient.isPlayerOne :" + socketClient.isPlayerOne);
+
         if (socketClient.isPlayerOne){
             this.currentPlayerSprite = this.playerOneSprite;
         }else{
             this.currentPlayerSprite = this.playerTwoSprite;
         }
+
+        this.setViewPointCenter(this.currentPlayerSprite.getPosition());
 
         return true;
     },
@@ -59,7 +64,8 @@ var GameLayer = cc.Layer.extend({
         if (typeof this.currentPlayerSprite != "undefined"){
              this.setViewPointCenter( this.currentPlayerSprite.getPosition());
         }
-        this.currentPlayerSprite.update();
+        this.playerOneSprite.update();
+        this.playerTwoSprite.update();
     },
     onKeyDown:function(e){
         this.currentPlayerSprite.handleKey(e);
