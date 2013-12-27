@@ -20,7 +20,6 @@ var box2dManager = {
          * @return {b2World} Initiated world.
          */
         initWorld:function(canvasId){
-
             //Init globalvariables.
             b2Vec2 = Box2D.Common.Math.b2Vec2;
             b2AABB = Box2D.Collision.b2AABB;
@@ -37,21 +36,19 @@ var box2dManager = {
             b2PrismaticJointDef = Box2D.Dynamics.Joints.b2PrismaticJointDef;
             b2Math = Box2D.Common.Math.b2Math;
 
-            this.canvas = document.getElementById(canvasId);
+            this.canvas = document.getElementById('debugCanvas');
+//            this.canvas = document.getElementById(canvasId);
             
             this.screenW = this.canvas.width, screenH = this.canvas.height;
             this.world = new b2World(new b2Vec2(0, 0) ,  true );
             this.scale = 20.0;
 
             // Debug options that aren't working...
-            /*
-            this.context = this.canvas.getContext("webgl"); 
+            
+            this.context = this.canvas.getContext("2d");
             if (this.context == null){
-                    this.context = this.canvas.getContext("2d"); 
-            };
-            if (this.context ==null){
                 console.log("Couldn't get canvas context, debug draws won't be shown.");
-            };
+            }
 
             
             var debugDraw = new b2DebugDraw();
@@ -61,16 +58,15 @@ var box2dManager = {
             debugDraw.SetLineThickness(1.0);
             debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
             this.world.SetDebugDraw(debugDraw);
-            */
+            
             return this.world;
 
         },
         init:function(){
-                console.log("hola");
         },
         update:function(){
             this.world.Step(1 / 60, 3, 3); 
-            //this.world.DrawDebugData();
+            this.world.DrawDebugData();
             this.world.ClearForces();
 
             //Iterate over the bodies in the physics world

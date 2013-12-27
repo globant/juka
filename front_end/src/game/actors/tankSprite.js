@@ -19,14 +19,6 @@ var TankSprite = cc.Sprite.extend({
     this._super();
     this.initWithFile("resources/images/tank.png");
     this._initBox2DBody(box2dManager.world);
-    
-    var debugDraw = new b2DebugDraw();
-    debugDraw.SetSprite(cc.renderContext);
-    debugDraw.SetDrawScale(PTM_RATIO);
-    debugDraw.SetFillAlpha(0.3);
-    debugDraw.SetLineThickness(1.0);
-    debugDraw.SetFlags(b2DebugDraw.e_shapeBit | b2DebugDraw.e_jointBit | b2DebugDraw.e_centerOfMassBit);
-    box2dManager.world.SetDebugDraw(debugDraw);
   },
   _initBox2DBody: function() {
 
@@ -178,9 +170,9 @@ var TankSprite = cc.Sprite.extend({
     } else if (e === cc.KEY.right) {
       this.steeringAngle = MAX_STEER_ANGLE;
     } else if (e === cc.KEY.up) {
-      this.engineSpeed = HORSEPOWERS;
-    } else if (e === cc.KEY.down) {
       this.engineSpeed = -HORSEPOWERS;
+    } else if (e === cc.KEY.down) {
+      this.engineSpeed = HORSEPOWERS;
     }
   },
   onKeyUp: function(e) {

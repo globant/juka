@@ -28,22 +28,22 @@ var GameLayer = cc.Layer.extend({
 
     this.addChild(tileMap);
     this.setViewPointCenter(this._playerSprite.getPosition());
-    
-    
+
+
     var staticsGroup = tileMap.getObjectGroup("Statics").getObjects();
     var world = box2dManager.world;
     var fixDef = new b2FixtureDef();
-        
+
     for (i = 0; i < staticsGroup.length; ++i) {
       var body = staticsGroup[i];
-      if(undefined === body.polylinePoints){
-        
-        console.log('name: ' + (body.name));
-        console.log('x: ' + (body.x /29));
-        console.log('y: ' + (body.y /29));
-        
+      if (undefined === body.polylinePoints) {
+
+//        console.log('name: ' + (body.name));
+//        console.log('x: ' + (body.x /29));
+//        console.log('y: ' + (body.y /29));
+
         var blockDef = new b2BodyDef();
-        blockDef.position = new b2Vec2(body.y /29, body.x /29);
+        blockDef.position = new b2Vec2(body.y / 29, body.x / 29);
         fixDef.shape = new b2PolygonShape;
         fixDef.shape.SetAsBox(0.2, 0.2);
         fixDef.density = 1;
@@ -70,7 +70,7 @@ var GameLayer = cc.Layer.extend({
     if (typeof this._playerSprite != "undefined") {
       this.setViewPointCenter(this._playerSprite.getPosition());
     }
-    ;
+
     this._playerSprite.update();
 
   },
@@ -79,7 +79,7 @@ var GameLayer = cc.Layer.extend({
   },
   onKeyUp: function(e) {
     this._playerSprite.onKeyUp(e);
-  },
+  }
 
 });
 
@@ -95,4 +95,3 @@ var TileMeadow = cc.TMXTiledMap.extend({
   }
 
 });
-
