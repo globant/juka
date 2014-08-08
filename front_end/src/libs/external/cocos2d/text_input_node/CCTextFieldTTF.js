@@ -60,7 +60,7 @@ cc.TextFieldDelegate = cc.Class.extend(/** @lends cc.TextFieldDelegate# */{
     },
 
     /**
-     * f the sender doesn't want to delete the delText, return true;
+     * If the sender doesn't want to delete the delText, return true;
      * @param {cc.TextFieldTTF} sender
      * @param {String} delText
      * @param {Number} len
@@ -400,9 +400,7 @@ cc.TextFieldTTF.create = function (placeholder, dimensions, alignment, fontName,
             break;
         case 3:
             ret = new cc.TextFieldTTF();
-            fontName = arguments[1];
-            fontSize = arguments[2];
-            if (ret && ret.initWithString("", fontName, fontSize)) {
+            if (ret && ret.initWithString("", arguments[1], arguments[2])) {
                 if (placeholder)
                     ret.setPlaceHolder(placeholder);
                 return ret;
