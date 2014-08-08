@@ -220,7 +220,7 @@ cc.Control = cc.LayerRGBA.extend({
         for (var i = 0, len = cc.CONTROL_EVENT_TOTAL_NUMBER; i < len; i++) {
             // If the given controlEvents bitmask contains the current event
             if ((controlEvents & (1 << i)))
-                this.removeTargetWithActionForControlEvent(target, action, 1 << i);
+                this._removeTargetWithActionForControlEvent(target, action, 1 << i);
         }
     },
 
@@ -271,7 +271,7 @@ cc.Control = cc.LayerRGBA.extend({
     _dispatchListforControlEvent:function (controlEvent) {
         controlEvent = controlEvent.toString();
         // If the invocation list does not exist for the  dispatch table, we create it
-        if (!this._dispatchTable.hasOwnProperty(controlEvent))
+        if (!this._dispatchTable[controlEvent])
             this._dispatchTable[controlEvent] = [];
         return this._dispatchTable[controlEvent];
     },
@@ -305,7 +305,7 @@ cc.Control = cc.LayerRGBA.extend({
      * @param {function} action A selector identifying an action message. Pass NULL to remove all action messages paired with target.
      * @param {Number} controlEvent A control event for which the action message is sent. See "CCControlEvent" for constants.
      */
-    removeTargetWithActionForControlEvent:function (target, action, controlEvent) {
+    _removeTargetWithActionForControlEvent:function (target, action, controlEvent) {
         // Retrieve all invocations for the given control event
         //<CCInvocation*>
         var eventInvocationList = this._dispatchListforControlEvent(controlEvent);
@@ -318,7 +318,7 @@ cc.Control = cc.LayerRGBA.extend({
             eventInvocationList.length = 0;
         } else {
             //normally we would use a predicate, but this won't work here. Have to do it manually
-            for (var i = 0; i < eventInvocationList.length; i++) {
+            for (var i = 0; i < eventInvocationList.length; ) {
                 var invocation = eventInvocationList[i];
                 var shouldBeRemoved = true;
                 if (target)
@@ -328,6 +328,8 @@ cc.Control = cc.LayerRGBA.extend({
                 // Remove the corresponding invocation object
                 if (shouldBeRemoved)
                     cc.ArrayRemoveObject(eventInvocationList, invocation);
+                else
+                    i ++;
             }
         }
     },

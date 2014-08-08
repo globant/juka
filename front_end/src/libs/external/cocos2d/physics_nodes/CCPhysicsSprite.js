@@ -1,4 +1,4 @@
-/* Copyright (c) 2012 Scott Lembcke and Howling Moon Software
+/** Copyright (c) 2012 Scott Lembcke and Howling Moon Software
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -75,7 +75,8 @@
         },
         _syncPosition:function () {
             var pos = this._body.GetPosition();
-            this._position = cc.p(pos.x * this._PTMRatio, pos.y * this._PTMRatio);
+            this._position.x = pos.x * this._PTMRatio;
+            this._position.y = pos.y * this._PTMRatio;
             this._rotationRadians = this._rotation * (Math.PI / 180);
         },
         _syncRotation:function () {
@@ -91,6 +92,9 @@
                 cc.log("PhysicsSprite body or PTIMRatio was not set");
             }
             this._super();
+        },
+        setIgnoreBodyRotation: function(b) {
+            this._ignoreBodyRotation = b;
         }
     };
     var chipmunkAPI = {
@@ -133,7 +137,7 @@
             }
         },
         getRotation:function () {
-            return this._ignoreBodyRotation ? cc.RADIANS_TO_DEGREES(this._rotationRadiansX) : -cc.RADIANS_TO_DEGREES(this._body.a)
+            return this._ignoreBodyRotation ? cc.RADIANS_TO_DEGREES(this._rotationRadiansX) : -cc.RADIANS_TO_DEGREES(this._body.a);
         },
         setRotation:function (r) {
             if (this._ignoreBodyRotation) {
@@ -183,8 +187,6 @@
         },
 
         _nodeToParentTransformForCanvas: function () {
-            if (!this._transform)
-                this._transform = {a: 1, b: 0, c: 0, d: 1, tx: 0, ty: 0};
             if (this.isDirty()) {
                 var t = this._transform;// quick reference
                 // base position
@@ -229,7 +231,11 @@
 
         isDirty:function(){
            return !this._body.isSleeping();
+        },
+        setIgnoreBodyRotation: function(b) {
+            this._ignoreBodyRotation = b;
         }
+
     };
     cc.PhysicsSprite = cc.Sprite.extend(chipmunkAPI);
 
