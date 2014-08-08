@@ -239,7 +239,7 @@ cc.TouchDispatcher = cc.Class.extend(/** @lends cc.TouchDispatcher# */ {
                 if (h.getPriority() < handler.getPriority())
                     ++u;
                 if (h.getDelegate() == handler.getDelegate()) {
-                    cc.Assert(0, "TouchDispatcher.forceAddHandler()");
+                    cc.log("cc.TouchDispatcher.forceAddHandler(): The handler has been added.");
                     return array;
                 }
             }
@@ -299,15 +299,16 @@ cc.TouchDispatcher = cc.Class.extend(/** @lends cc.TouchDispatcher# */ {
      * @param {cc.TouchDelegate} delegate
      */
     setPriority:function (priority, delegate) {
-        cc.Assert(delegate != null, "TouchDispatcher.setPriority():Arguments is null");
-
+        if(!delegate)
+            throw "cc.TouchDispatcher.setPriority(): delegate should be non-null.";
         var handler = this.findHandler(delegate);
-
-        cc.Assert(handler != null, "TouchDispatcher.setPriority():Cant find TouchHandler");
+        if(!handler){
+            cc.log("cc.TouchDispatcher.setPriority(): Can't find TouchHandler.");
+            return;
+        }
 
         if (handler.getPriority() != priority) {
             handler.setPriority(priority);
-
             this.rearrangeHandlers(this._targetedHandlers);
             this.rearrangeHandlers(this._standardHandlers);
         }
@@ -319,7 +320,8 @@ cc.TouchDispatcher = cc.Class.extend(/** @lends cc.TouchDispatcher# */ {
      * @param {Number} index
      */
     touches:function (touches, event, index) {
-        cc.Assert(index >= 0 && index < 4, "TouchDispatcher.touches()");
+        if(index< 0 || index >=4)
+            throw "cc.TouchDispatcher.touches(): invalid index";
 
         this._locked = true;
 
@@ -403,23 +405,28 @@ cc.TouchDispatcher = cc.Class.extend(/** @lends cc.TouchDispatcher# */ {
                 switch (helper.type) {
                     case cc.TOUCH_BEGAN:
                         if (mutableTouches.length > 0) {
-                            if (handler.getDelegate().onTouchesBegan) handler.getDelegate().onTouchesBegan(mutableTouches, event);
+                            if (handler.getDelegate().onTouchesBegan)
+                                handler.getDelegate().onTouchesBegan(mutableTouches, event);
                         }
                         break;
                     case cc.TOUCH_MOVED:
                         if (mutableTouches.length > 0) {
                             if (cc.Browser.isMobile) {
-                                if (handler.getDelegate().onTouchesMoved) handler.getDelegate().onTouchesMoved(mutableTouches, event);
+                                if (handler.getDelegate().onTouchesMoved)
+                                    handler.getDelegate().onTouchesMoved(mutableTouches, event);
                             } else {
-                                if (this._mousePressed && handler.getDelegate().onTouchesMoved) handler.getDelegate().onTouchesMoved(mutableTouches, event);
+                                if (this._mousePressed && handler.getDelegate().onTouchesMoved)
+                                    handler.getDelegate().onTouchesMoved(mutableTouches, event);
                             }
                         }
                         break;
                     case cc.TOUCH_ENDED:
-                        if (handler.getDelegate().onTouchesEnded) handler.getDelegate().onTouchesEnded(mutableTouches, event);
+                        if (handler.getDelegate().onTouchesEnded && mutableTouches.length > 0)
+                            handler.getDelegate().onTouchesEnded(mutableTouches, event);
                         break;
                     case cc.TOUCH_CANCELLED:
-                        if (handler.getDelegate().onTouchesCancelled) handler.getDelegate().onTouchesCancelled(mutableTouches, event);
+                        if (handler.getDelegate().onTouchesCancelled)
+                            handler.getDelegate().onTouchesCancelled(mutableTouches, event);
                         break;
                 }
             }
@@ -515,6 +522,8 @@ cc.TouchDispatcher = cc.Class.extend(/** @lends cc.TouchDispatcher# */ {
         switch (arguments.length) {
             case 1:
                 delegate = arguments[0];
+                if(!delegate)
+                    throw "cc.TouchDispatcher.findHandler(): delegate should be non-null.";
                 for (var i = 0; i < this._targetedHandlers.length; i++) {
                     if (this._targetedHandlers[i].getDelegate() == delegate) {
                         return this._targetedHandlers[i];
@@ -528,7 +537,10 @@ cc.TouchDispatcher = cc.Class.extend(/** @lends cc.TouchDispatcher# */ {
                 return null;
                 break;
             case 2:
-                cc.Assert(array != null && delegate != null, "TouchDispatcher.findHandler():Arguments is null");
+                if(!array)
+                    throw "cc.TouchDispatcher.findHandler(): array should be non-null.";
+                if(!delegate)
+                    throw "cc.TouchDispatcher.findHandler(): delegate should be non-null.";
 
                 for (i = 0; i < array.length; i++) {
                     if (array[i].getDelegate() == delegate) {
@@ -800,7 +812,7 @@ cc.TouchDispatcher.registerHtmlElementEvent = function (element) {
 
                     var location = cc.EGLView.getInstance().convertToLocationInView(tx, ty, pos);
                     touch = null;
-                    if (touch_event.hasOwnProperty("identifier")) {
+                    if (touch_event.identifier) {
                         touch = new cc.Touch(location.x, location.y, touch_event.identifier);
                         //use Touch Pool
                         preLocation = cc.TouchDispatcher._getPreTouch(touch).getLocation();
@@ -844,7 +856,7 @@ cc.TouchDispatcher.registerHtmlElementEvent = function (element) {
                     var location = cc.EGLView.getInstance().convertToLocationInView(tx, ty, pos);
 
                     touch = null;
-                    if (touch_event.hasOwnProperty("identifier")) {
+                    if (touch_event.identifier) {
                         touch = new cc.Touch(location.x, location.y, touch_event.identifier);
                         //use Touch Pool
                         preLocation = cc.TouchDispatcher._getPreTouch(touch).getLocation();
@@ -888,7 +900,7 @@ cc.TouchDispatcher.registerHtmlElementEvent = function (element) {
                     var location = cc.EGLView.getInstance().convertToLocationInView(tx, ty, pos);
 
                     touch = null;
-                    if (touch_event.hasOwnProperty("identifier")) {
+                    if (touch_event.identifier) {
                         touch = new cc.Touch(location.x, location.y, touch_event.identifier);
                         //use Touch Pool
                         preLocation = cc.TouchDispatcher._getPreTouch(touch).getLocation();
@@ -932,7 +944,7 @@ cc.TouchDispatcher.registerHtmlElementEvent = function (element) {
                     var location = cc.EGLView.getInstance().convertToLocationInView(tx, ty, pos);
 
                     touch = null;
-                    if (touch_event.hasOwnProperty("identifier")) {
+                    if (touch_event.identifier) {
                         touch = new cc.Touch(location.x, location.y, touch_event.identifier);
                         //use Touch Pool
                         preLocation = cc.TouchDispatcher._getPreTouch(touch).getLocation();
