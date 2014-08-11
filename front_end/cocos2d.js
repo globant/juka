@@ -28,7 +28,7 @@
     var d = document;
     var c = {
         COCOS2D_DEBUG:0, //0 to turn debug off, 1 for basic debug, and 2 for full debug
-        box2d:true,
+        box2d:false,
         chipmunk:false,
         showFPS:true,
         frameRate:60,
@@ -38,7 +38,7 @@
         engineDir:'src/libs/external/cocos2d/',
         //SingleEngineFile:'',
         appFiles:[
-            'src/libs/globant/box2dManager.js',
+            // 'src/libs/globant/box2dManager.js',
             'resources/images/TileMap.tmx',
             'src/game/resources.js',
             'src/game/scenes/creditsScene.js',
@@ -46,7 +46,7 @@
             'src/game/scenes/instructionsScene.js',
             'src/game/actors/tankSprite.js',
             'src/game/scenes/gameScene.js',
-            'src/game/scenes/box2DScene.js',
+            // 'src/game/scenes/box2DScene.js',
             'src/game/scenes/wellcomeScene.js'
         ]
     };
