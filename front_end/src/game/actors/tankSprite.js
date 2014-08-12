@@ -70,11 +70,6 @@ var TankSprite = cc.Sprite.extend({
     this.rightCaterpillarDirection = -1;
   },
   onKeyUp: function(e) {
-    // if (e === cc.KEY.left || e === cc.KEY.right) {
-    //   this.steeringAngle = 0;
-    // } else if (e === cc.KEY.up || e === cc.KEY.down) {
-    //   this.engineSpeed = 0;
-    // }
   }
 
 });
