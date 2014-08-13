@@ -18,6 +18,28 @@ var GameLayer = cc.Layer.extend({
         var tileMap = new TileMeadow();
         var objectGroup = tileMap.getObjectGroup("Objects");
         var spawnPoint = objectGroup.objectNamed("player");
+
+        var staticsGroup = tileMap.getObjectGroup("Statics").getObjects();
+        var draw = cc.DrawNode.create();
+        this.addChild(draw, 10);
+
+        for (var i = 0; i < staticsGroup.length; ++i) {
+          var body = staticsGroup[i];
+          console.log(body);
+          var debugColor = cc.c4f(0, 0.5, 1, 1);
+          if ('circle' === body.type) {
+            draw.drawDot(cc.p(body.x, body.y), body.width, debugColor);
+          } else if ('square' === body.type) {
+            draw.drawRect(cc.p(body.x, body.y), cc.p(body.x + body.width, body.y + body.height), debugColor, 0, debugColor);
+          } else if ('polygon' === body.type) {
+            var points = [];
+            for(var j = 0; j < body.polylinePoints.length; j++){
+              var point = body.polylinePoints[j];
+              points.push(cc.p(body.x - point.x , body.y + point.y));
+            }
+            draw.drawPoly(points, debugColor, 0, debugColor);
+          }
+        }
       
         this._playerSprite = new TankSprite();
         this._playerSprite.setPosition(spawnPoint.x, spawnPoint.y);
