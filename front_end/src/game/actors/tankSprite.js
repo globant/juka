@@ -49,7 +49,9 @@ var TankSprite = cc.Sprite.extend({
     this.engineSpeed++;
   },
   downPower: function(){
-    this.engineSpeed--;
+    if(this.engineSpeed > 0){
+      this.engineSpeed--;
+    }
   },
   advanceLeftCaterpillar: function(){
     this.leftCaterpillarDirection = 1;
