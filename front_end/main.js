@@ -33,7 +33,7 @@ var cocos2dApp = cc.Application.extend({
         cc.initDebugSetting();
         cc.setup(this.config['tag']);
         cc.AppController.shareAppController().didFinishLaunchingWithOptions();
-        box2dManager.initWorld("gameCanvas");
+        // box2dManager.initWorld("gameCanvas");
     },
     applicationDidFinishLaunching:function () {
 
