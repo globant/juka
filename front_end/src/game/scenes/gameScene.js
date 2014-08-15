@@ -19,11 +19,6 @@ var GameLayer = cc.Layer.extend({
         var tileMap = new TileMeadow();
         var objectGroup = tileMap.getObjectGroup("Objects");
         var spawnPoint = objectGroup.objectNamed("player");
-
-        // var mainThinks = tileMap.getObjectGroup("MainThinks");
-        // mainThinks.setVertexZ(10);
-        // var baseMap = tileMap.getObjectGroup("Base");
-        // baseMap.setVertexZ(20);
       
         this._playerSprite = new TankSprite();
         this._playerSprite.setPosition(spawnPoint.x, spawnPoint.y);
@@ -33,8 +28,6 @@ var GameLayer = cc.Layer.extend({
         tileMap.addChild( this._playerSprite);
         
         this.addChild(tileMap);
-        // this.addChild(mainThinks);
-        // this.addChild(baseMap);
         this.setViewPointCenter( this._playerSprite.getPosition());
         
         return true;
@@ -49,7 +42,6 @@ var GameLayer = cc.Layer.extend({
         this.setPosition(viewPoint);
     },
     update:function(dt){
-        box2dManager.update();        
         if (typeof this._playerSprite != "undefined"){
              this.setViewPointCenter( this._playerSprite.getPosition());
          };
